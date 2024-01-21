@@ -22,7 +22,7 @@ function deepCopy<T>(data: T): T {
   }
 
   if (Array.isArray(data)) {
-    const copied = [];
+    const copied: (typeof data)[number][] = [];
 
     for (let i = 0; i < data.length; i++) {
       copied.push(deepCopy(data[i]));
