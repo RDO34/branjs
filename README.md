@@ -274,7 +274,7 @@ const myFixture = createFixture((initialFixture) => ({
 
 This is a less convenient pattern that involves a lot more boilerplate. This will inevitably lead to developers creating more ad hoc fixtures in-place, often with incomplete models or forced types.
 
-Using a deep-copy method and mutating the copy could work well as an alternative:
+Using a deep-copy method and mutating that could work well as an alternative:
 
 ```ts
 export const createFixture = (): MyType => {
@@ -290,7 +290,7 @@ const myFixture = createFixture();
 myFixture.some.deeply.nested.value = "foo";
 ```
 
-Again, there is nothing wrong with this approach. Some data would be lost with this approach to deep-copying (for example dates in the initial fixture would be stringified) however other deep-copy methods are available.
+Again, there is nothing wrong with this approach. Some data would be lost with the JSON deep-copying method (for example dates in the initial fixture would be stringified) however other deep-copy functions are available.
 
 In fact `createBuilder` will also deep-copy the initial fixture data and could even be used in the exact same way.
 
