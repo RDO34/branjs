@@ -12,9 +12,19 @@ type IBuilder<T> = {
   build(): T;
 };
 
+type AllowNestedBuilders<T extends Record<string | symbol, any>> = {
+  [P in keyof T]: T extends object
+    ? IBuilder<T[P]> | AllowNestedBuilders<T[P]>
+    : T[P];
+};
+
 function deepCopy<T>(data: T): T {
   if (!data) {
     return data;
+  }
+
+  if (data instanceof Builder) {
+    return data.build() as T;
   }
 
   if (data instanceof Date) {
@@ -93,7 +103,7 @@ const createFlatProxy = <TFaux>(
 class Builder<T extends Record<string | symbol, any>> implements IBuilder<T> {
   private readonly product = {} as T;
 
-  constructor(initialState: T) {
+  constructor(initialState: AllowNestedBuilders<T>) {
     this.product = deepCopy(initialState) as T;
   }
 
@@ -132,9 +142,9 @@ class Builder<T extends Record<string | symbol, any>> implements IBuilder<T> {
 }
 
 const createBuilder = <T extends Record<string | symbol, any>>(
-  initialState: T
+  initialState: AllowNestedBuilders<T>
 ): (() => IBuilder<T>) => {
-  return () => new Builder(initialState);
+  return () => new Builder<T>(initialState);
 };
 
 export { createBuilder };

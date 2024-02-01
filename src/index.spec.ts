@@ -465,4 +465,155 @@ describe("Bran", () => {
       });
     });
   });
+
+  describe("nested builders", () => {
+    describe("basic", () => {
+      type Address = {
+        street: string;
+        city: string;
+        country: string;
+      };
+
+      type Customer = {
+        name: string;
+        address: Address;
+      };
+
+      const addressFixture = createBuilder<Address>({
+        street: "2 Main St",
+        city: "San Francisco",
+        country: "USA",
+      });
+
+      const customerFixture = createBuilder<Customer>({
+        name: "John",
+        address: addressFixture(),
+      });
+
+      it("should correctly return a fixture with a nested fixture", () => {
+        const customer = customerFixture().build();
+        expect(customer.address.city).toBe("San Francisco");
+      });
+
+      it("should allow setting a property on a nested fixture", () => {
+        const customer = customerFixture()
+          .with.address.city("San Jose")
+          .build();
+        expect(customer.address.city).toBe("San Jose");
+      });
+    });
+
+    describe("complex", () => {
+      type Address = {
+        street: string;
+        city: string;
+        country: string;
+      };
+
+      type Customer = {
+        name: string;
+        address: Address;
+      };
+
+      type Order = {
+        id: string;
+        customer: Customer;
+      };
+
+      const addressFixture = createBuilder<Address>({
+        street: "2 Main St",
+        city: "San Francisco",
+        country: "USA",
+      });
+
+      const customerFixture = createBuilder<Customer>({
+        name: "John",
+        address: addressFixture(),
+      });
+
+      const orderFixture = createBuilder<Order>({
+        id: "1",
+        customer: customerFixture(),
+      });
+
+      it("should correctly return a fixture with a nested fixture", () => {
+        const order = orderFixture().build();
+        expect(order.customer.address.city).toBe("San Francisco");
+      });
+
+      it("should allow setting a property on a nested fixture", () => {
+        const order = orderFixture()
+          .with.customer.address.city("San Jose")
+          .build();
+        expect(order.customer.address.city).toBe("San Jose");
+      });
+    });
+
+    describe("deeply nested", () => {
+      type Address = {
+        street: string;
+        city: string;
+        country: string;
+      };
+
+      type Customer = {
+        name: string;
+        address: Address;
+      };
+
+      type Item = {
+        id: string;
+        name: string;
+        price: number;
+      };
+
+      type Order = {
+        id: string;
+        customer: Customer;
+        items: Item[];
+      };
+
+      const addressFixture = createBuilder<Address>({
+        street: "2 Main St",
+        city: "San Francisco",
+        country: "USA",
+      });
+
+      const customerFixture = createBuilder<Customer>({
+        name: "John",
+        address: addressFixture(),
+      });
+
+      const itemFixture = createBuilder<Item>({
+        id: "1",
+        name: "test-product",
+        price: 199,
+      });
+
+      const orderFixture = createBuilder<Order>({
+        id: "1",
+        customer: customerFixture(),
+        items: [itemFixture()],
+      });
+
+      it("should correctly return a fixture with a deeply nested fixture", () => {
+        const order = orderFixture().build();
+        expect(order.customer.address.city).toBe("San Francisco");
+      });
+
+      it("should allow setting a property on a deeply nested fixture", () => {
+        const order = orderFixture()
+          .with.customer.address.city("San Jose")
+          .build();
+        expect(order.customer.address.city).toBe("San Jose");
+      });
+
+      it("should allow setting a property on a deeply nested array fixture", () => {
+        const order = orderFixture()
+          .with.items[0].name("test-product-2")
+          .build();
+        expect(order.items[0].name).toBe("test-product-2");
+      });
+    });
+  });
 });
