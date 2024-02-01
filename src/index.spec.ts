@@ -1,6 +1,6 @@
 import { expect, describe, it, test } from "vitest";
 
-import { createBuilder } from "./index";
+import { createBuilder, mergeBuilders } from "./index";
 
 describe("Bran", () => {
   it("should return a builder object", () => {
@@ -614,6 +614,52 @@ describe("Bran", () => {
           .build();
         expect(order.items[0].name).toBe("test-product-2");
       });
+    });
+  });
+
+  describe("merging builders", () => {
+    it("should allow merging two builders", () => {
+      type Address = {
+        street: string;
+        city: string;
+        country: string;
+      };
+
+      type Customer = {
+        name: string;
+        address: Address;
+      };
+
+      type CustomerDetails = {
+        mobile: string;
+      };
+
+      type CustomerWithMobile = Customer & CustomerDetails;
+
+      const addressFixture = createBuilder<Address>({
+        street: "2 Main St",
+        city: "San Francisco",
+        country: "USA",
+      });
+
+      const customerFixture = createBuilder<Customer>({
+        name: "John",
+        address: addressFixture(),
+      });
+
+      const customerDetailsFixture = createBuilder<CustomerDetails>({
+        mobile: "07777777777",
+      });
+
+      const mergedCustomerFixture = mergeBuilders<
+        Customer,
+        CustomerDetails,
+        CustomerWithMobile
+      >(customerFixture, customerDetailsFixture);
+
+      const customer = mergedCustomerFixture().build();
+      expect(customer.mobile).toBe("07777777777");
+      expect(customer.address.city).toBe("San Francisco");
     });
   });
 });

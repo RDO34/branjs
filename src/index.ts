@@ -144,9 +144,24 @@ class Builder<T extends Record<string | symbol, any>> implements IBuilder<T> {
 const createBuilder = <T extends Record<string | symbol, any>>(
   initialState: AllowNestedBuilders<T>
 ): (() => IBuilder<T>) => {
-  return () => new Builder<T>(initialState);
+  const instantiate = () => new Builder<T>(initialState);
+  instantiate.__initialState = initialState;
+  return instantiate;
 };
 
-export { createBuilder };
+const mergeBuilders = <
+  A extends Record<string | symbol, any>,
+  B extends Record<string | symbol, any>,
+  T extends Record<string | symbol, any> = A & B
+>(
+  builderA: () => IBuilder<A>,
+  builderB: () => IBuilder<B>
+): (() => IBuilder<T>) =>
+  createBuilder<T>({
+    ...(builderA as any).__initialState,
+    ...(builderB as any).__initialState,
+  });
+
+export { createBuilder, mergeBuilders };
 export default createBuilder;
 export type { IBuilder };
