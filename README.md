@@ -8,8 +8,8 @@ Does this look familiar?
 
 ```ts
 const myEmployeeFixture = {
-  name: 'foo';
-  job: 'something';
+  name: "foo",
+  job: "something",
 } as unknown as EmployeeWithDetails;
 ```
 
@@ -17,8 +17,8 @@ Or maybe this?
 
 ```ts
 const myEmployeeFixture: EmployeeWithDetails = {
-  name: 'foo';
-  job: 'something';
+  name: "foo",
+  job: "something",
 } as any;
 ```
 
