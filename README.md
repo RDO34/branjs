@@ -1,3 +1,5 @@
+![NPM Downloads](https://img.shields.io/npm/dt/branjs)
+
 # Bran
 
 _Scalable test fixtures with ease._ 🍃
@@ -179,7 +181,7 @@ test("returns false when the customer has overdue fees", () => {
 
 This means that:
 
-1. We can spending our time worrying about the parts of our tests that _actually_ matter.
+1. We can spend our time worrying about the parts of our tests that _actually_ matter.
 2. We can be confident that our tests are using data that correctly represents our data model.
 
 ## Composing fixtures
@@ -228,6 +230,56 @@ test("returns false when the customer is not allowed to check out", () => {
 
   expect(canCheckout(underageCustomer, order)).toBe(false);
 });
+```
+
+## Merging fixtures
+
+Fixtures can also be easily merged.
+
+Say we have the following types:
+
+```ts
+type Customer = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+type CustomerDetails = {
+  mobile: string;
+  dob: Date;
+  address: Address;
+};
+
+type CustomerWithDetails = Customer & CustomerDetails;
+```
+
+And the following fixtures:
+
+```ts
+const customerFixture = createBuilder<Customer>({
+  id: "deb3c30c-23f0-4b05-a7ce-3166e86f8b0a",
+  name: "John Smith",
+  email: "john.smith@example.com",
+});
+
+const customerDetailsFixture = createBuilder<CustomerDetails>({
+  mobile: "07777777777",
+  dob: new Date("1985-02-01"),
+  address: addressFixture(),
+});
+```
+
+We can then merge our two existing fixtures to create a fixture builder for our third union type:
+
+```ts
+import { mergeBuilders } from "branjs";
+
+const customerWithDetailsFixture = mergeBuilders<
+  Customer,
+  CustomerDetails,
+  CustomerWithDetails
+>(customerFixture, customerDetailsFixture);
 ```
 
 ## Why?
@@ -312,6 +364,8 @@ Bran offers a consistent approach for creating test fixtures that can easily sca
 
 ## API
 
+### createBuilder
+
 The Builder API is very shallow, which makes it very easy to read and learn.
 
 The `createBuilder` function takes a shape of type `T` (your base fixture) and returns a builder of type `IBuilder<T>`. Providing an explicit type generic is encouraged, as this will help ensure the base fixture correctly matches the model.
@@ -354,3 +408,20 @@ Note that this function will always return the base builder interface, allowing 
 ```
 
 It will return the fixture with all the changes made prior to the build. This is a deep copy of the initial fixture, so there is no risk of mutability and the same builder can be used to create further fixtures.
+
+### mergeBuilders
+
+The merge builders function takes two builder functions and merges them. Note that only two builders can be merged at a time, however there is no limit to how many times builders are merged.
+
+```ts
+<
+    Type1 extends Record<string | symbol, any>,
+    Type2 extends Record<string | symbol, any>,
+    CombinedType extends Type1 & Type2
+  >(
+    builder1: () => IBuilder<Type1>,
+    builder2: () => IBuilder<Type2>
+  ) =>
+  () =>
+    IBuilder<CombindType>;
+```
