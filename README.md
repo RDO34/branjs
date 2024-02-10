@@ -1,4 +1,4 @@
-![NPM Downloads](https://img.shields.io/npm/dt/branjs)
+![NPM Downloads](https://img.shields.io/npm/dt/branjs) ![NPM Version](https://img.shields.io/npm/v/branjs)
 
 # Bran
 
